@@ -27,38 +27,6 @@ def create_aux_var(self, monomial_comb):
                 aux_system.append((list(monomial_set), monomial_val))
 
         output.put(aux_system)
-
-def create_nonlinear_aux(z, aux_system, aux_index):
-
-    for i in range(len(z)):
-        while count_var(z[i][0]) > 8 and not is_linear(z[i][0]):
-
-            aux_expression = list(filter(lambda x: len(x) > 1, z[i][0]))
-            k = 0
-
-            while count_var(aux_expression[k:]) > 7:
-                k += 1
-
-            aux_expression = aux_expression[k:]
-
-            for equation, _ in z:
-                if is_contained(equation, aux_expression):
-                    for monomial in aux_expression:
-                        equation.remove(monomial)
-
-                    equation.append({f"a{aux_index}"})
-
-            for aux_equation in aux_system:
-                if is_contained(aux_equation, aux_expression):
-                    for monomial in aux_expression:
-                        aux_equation.remove(monomial)
-
-                        aux_equation.append({f"a{aux_index}"})
-
-            aux_system.append(aux_expression)
-            aux_index += 1
-
-    return aux_index
         
 def fix_top(z, keystream, kx, ky, n):
 
@@ -127,16 +95,6 @@ def find_alternative_bases(bases_to_modify, z, keystream):
                         alternative_bases.append(test_base)
 
     output.put(alternative_bases)
-
-###COUNT OCCURRENCE
-def count_var(equation):
-    variable_set = set()
-
-    for monomial in equation:
-        for variable in monomial:
-            variable_set.add(variable)
-
-    return len(variable_set)
 
 ###UNDO / REDO
 def save_state(past_actions, next_actions, system):
@@ -390,7 +348,7 @@ if __name__ == "__main__":
                 aux_index += 1
 
         elif len(command) == 1 and command[0] == "aux_selection":
-            aux_index = create_nonlinear_aux(z_with_free_bit, aux_system, aux_index)      
+            system.create_nonlinear_aux()    
 
         elif len(command) == 1 and command[0] == "add_aux":
 

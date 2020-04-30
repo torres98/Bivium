@@ -9,6 +9,15 @@ def is_linear(equation):
 def is_contained(container, content):
     return all(elements in container for elements in content)
 
+def count_var(equation):
+    variable_set = set()
+
+    for monomial in equation:
+        for variable in monomial:
+            variable_set.add(variable)
+
+    return len(variable_set)
+    
 def equation_to_string(equation, keystream, i):
     return f"k{i + 1}: {int(keystream[i] ^ equation[1])} = {' + '.join([' * '.join(x) for x in equation[0]])}"
 
@@ -189,6 +198,35 @@ class BiviumSystem:
 
         else:
             print("L'equazione ausiliaria non compare mai nel sistema.", end = '\n\n')
+
+    def create_nonlinear_aux(self):
+
+        for i in range(len(self.z_free_bits)):
+            while count_var(self.z_free_bits[i][0]) > 8 and not is_linear(self.z_free_bits[i][0]):
+
+                aux_expression = list(filter(lambda x: len(x) > 1, self.z_free_bits[i][0]))
+                k = 0
+
+                while count_var(aux_expression[k:]) > 7:
+                    k += 1
+
+                aux_expression = aux_expression[k:]
+
+                for equation, _ in self.z_free_bits:
+                    if is_contained(equation, aux_expression):
+                        for monomial in aux_expression:
+                            equation.remove(monomial)
+
+                        equation.append({f"a{len(self.aux_system) + 1}"})
+
+                for aux_equation in self.aux_system:
+                    if is_contained(aux_equation, aux_expression):
+                        for monomial in aux_expression:
+                            aux_equation.remove(monomial)
+
+                            aux_equation.append({f"a{len(self.aux_system) + 1}"})
+
+                self.aux_system.append(aux_expression)
 
     ###PRINT
     def print(self, fb = True):
