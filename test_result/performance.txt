@@ -1,0 +1,2 @@
+Avg Gauss Time: 16.38775
+Avg NoGauss Time: 23.646625

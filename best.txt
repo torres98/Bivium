@@ -1,0 +1,8 @@
+i mod 3 = 0 927 + 481
+x91    y67    y82    x49    x76    x37    y40    x22    x52    x79    x61    x34    x07    x88    y64    x46    x73    x19    x31    x58    x04    x85    y61    x43    x70    x16    x28    x01    x55    x82    y58    x40    x67    x25    x13    x10
+
+i mod 3 = 2 936 + 492
+x92    y68    y83    x89    y65    y80    x86    y62    y77    x77    y53    x74    y50    y38    x32    x20    x05    x44    x71    x17    y41    y56    x23    x08    x29    y05    y32    y14    y29    x53    y44    x80    x68    y59    x83    x14
+
+i mod 3 = 1 (981 + 455 = 
+x93    y69    y84    x90    y66    y81    x87    y63    y78    x84    y60    y75    x81    y57    y72    y42    x78    y54    x36    x24    x09    x75    y51    y24    x33    x06    x72    y48    x30    x18    x03    x69    y45    x27    x15    y15

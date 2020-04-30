@@ -1,0 +1,87 @@
+x51 x52 x57 x59 x60 x61 x62 x63 x64 x65 x66 x67 x68 x69 x71 x72 x75 x77 x81 x87 x89 x91 
+
+y54 y57 y59 y61 y64 y65 y66 y67 y68 y69 y70 y71 y72 y74 y76 y78 
+
+x52 x54 x56 x58 x61 x62 x63 x64 x65 x66 x68 x69 x70 x72 x75 x77 x79 x83 x87 x88 
+
+y56 y58 y60 y62 y64 y66 y67 y68 y69 y70 y71 y73 y75 y76 y77 y78 y81 y82 
+
+x52 x55 x57 x59 x60 x62 x63 x64 x65 x66 x68 x69 x71 x73 x75 x76 x77 x84 x89 x90 x91 
+
+y55 y57 y59 y61 y62 y64 y65 y66 y67 y68 y69 y70 y71 y72 y74 y76 y78 
+
+x51 x53 x55 x58 x60 x61 x62 x63 x64 x65 x66 x67 x68 x69 x72 x74 x76 x78 x82 
+
+y51 y55 y57 y61 y63 y65 y66 y67 y68 y69 y71 y72 y73 y74 y75 y76 y77 y78 y81 
+
+x52 x54 x56 x59 x61 x62 x63 x64 x65 x66 x68 x70 x72 x74 x75 x78 x81 x84 x86 x89 x90 x91 
+
+y54 y55 y56 y58 y61 y64 y65 y66 y67 y68 y69 y71 y73 y75 y76 y78
+
+x51 x55 x57 x59 x60 x62 x63 x64 x65 x66 x67 x68 x70 x72 x73 x75 x78 x80 x84 x88 x90 x91 
+
+y55 y57 y59 y62 y63 y65 y66 y67 y68 y69 y70 y71 y72 y75 y77 y80
+
+x58 x60 x61 x62 x63 x64 x65 x67 x68 x69 x70 x72 x74 x76 x78 x82 x84 x87 x90 
+
+y54 y56 y58 y60 y61 y64 y65 y66 y67 y69 y71 y72 y73 y74 y75 y76 y77 y78 y82 
+
+x51 x53 x59 x61 x63 x65 x66 x67 x68 x70 x72 x74 x76 x78 x82 x83 x85 x88 x89 x90 x91 
+
+y53 y55 y57 y59 y61 y63 y64 y65 y66 y67 y68 y70 y72 y73 y74 y75 y77 
+VARIABILI FISSATE:
+x52 x55 x61 x63 x64 x65 x66 x68 x70 x71 x72 x73 x75 x77 x79 x82 x84 x86 x87 x88 x90 
+
+y53 y55 y57 y60 y62 y64 y65 y66 y67 y68 y69 y71 y73 y75 y77 y78 y82 
+
+
+
+VARIABILI FISSATE:
+x51 x56 x58 x61 x62 x63 x64 x65 x66 x67 x68 x69 x71 x72 x74 x75 x76 x80 x84 x87 x89 x91 
+
+y54 y56 y58 y61 y63 y64 y65 y66 y67 y68 y69 y71 y72 y74 y76 y78 
+
+
+
+VARIABILI FISSATE:
+x52 x54 x56 x58 x60 x62 x63 x64 x65 x66 x67 x68 x69 x71 x73 x75 x77 x79 x81 x83 x89 x90 
+
+y58 y60 y62 y63 y64 y65 y66 y67 y68 y70 y71 y72 y73 y75 y77 y78 
+
+
+
+VARIABILI FISSATE:
+x51 x59 x61 x63 x65 x66 x67 x68 x69 x70 x71 x72 x75 x76 x80 x82 x84 x86 x88 x90 x91 
+
+y54 y56 y58 y60 y61 y63 y65 y67 y69 y71 y73 y75 y76 y77 y78 y80 y82 
+
+
+
+VARIABILI FISSATE:
+x52 x54 x59 x61 x63 x65 x66 x67 x68 x69 x72 x74 x76 x81 x84 x88 x89 x90 x91 
+
+y54 y56 y57 y59 y61 y63 y64 y65 y66 y67 y68 y69 y71 y73 y74 y75 y76 y77 y78 
+
+
+
+VARIABILI FISSATE:
+x51 x53 x55 x58 x60 x62 x63 x64 x65 x66 x67 x68 x69 x72 x74 x76 x78 x80 x83 x84 x90 
+
+y55 y56 y57 y60 y63 y65 y67 y68 y69 y72 y73 y74 y75 y77 y78 y80 y82 
+
+
+
+VARIABILI FISSATE:
+x52 x56 x60 x61 x62 x63 x64 x65 x66 x68 x69 x72 x75 x77 x81 x85 x87 x89 x90 x91 
+
+y54 y56 y57 y58 y59 y61 y62 y64 y65 y66 y67 y68 y69 y70 y72 y74 y76 y78 
+
+
+
+VARIABILI FISSATE:
+x51 x53 x60 x61 x62 x63 x65 x66 x67 x68 x69 x72 x74 x76 x80 x83 x85 x88 x90 x91 
+
+y53 y55 y57 y59 y61 y63 y64 y65 y66 y67 y68 y70 y71 y72 y73 y74 y75 y77 
+
+
+
