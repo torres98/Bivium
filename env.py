@@ -121,15 +121,6 @@ def redo(past_actions, next_actions):
 
         system = next_system.copy()
 
-def to_sage(z, keystream):
-    result = []
-
-    for i in range(len(z)):
-        if z[i][0] != []:
-            result.append(f"{' + '.join([' * '.join(x) for x in z[i][0]])} + {keystream[i] ^ z[i][1]}")
-
-    return result
-
  ##########
 ### MAIN ###
  ##########
@@ -363,9 +354,9 @@ if __name__ == "__main__":
 
             system.add_aux(aux_expr)
 
-        elif command[0] == "var_rem":
+        elif len(command) == 1 and command[0] == "unknown_var":
             var_list = [f"x{i:02}" for i in range(1, 94)] + [f"y{i:02}" for i in range(1, 85)]
-            print(", ".join([var for var in var_list if var not in free_list and var not in fixed_list]))
+            print(", ".join([var for var in var_list if var not in system.free and var not in system.fixed]))
             
         elif len(command) == 1 and command[0] == "fixed":
             system.print_history()
@@ -393,9 +384,9 @@ if __name__ == "__main__":
             elif command[0] == "print_sympy":
                 system.print_sympy(fb)
             elif command[0] == "print_cnf":
-                system.print_cnf()
+                system.print_cnf(fb)
             elif command[0] == "print_sage":
-                print(to_sage(system.z_free_bit, system.keystream))
+                system.print_sage(fb)
             elif command[0] == "print_aux":
                 system.print_aux()
             else:

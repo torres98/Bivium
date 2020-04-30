@@ -265,6 +265,17 @@ class BiviumSystem:
         for i in range(len(self.aux_system)):
             print(f"Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})", end = "\n\n")
 
+    def print_sage(self, fb = True):
+
+        result = "["
+        z = self.z_free_bits if fb else self.z
+
+        for i in range(len(z)):
+            if z[i][0] != []:
+                result += (f"{' + '.join([' * '.join(x) for x in z[i][0]])} + {int(self.keystream[i] ^ z[i][1])},")
+
+        print(f"{result[:-1]}]")
+
     def print_cnf(self, fb = True):
 
         z = self.z_free_bits if fb else self.z
