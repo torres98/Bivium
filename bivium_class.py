@@ -1,6 +1,7 @@
 from copy import deepcopy
 from random import getrandbits
 from to_cnf import system_to_cnf
+from sympy import *
 from bivium import bivium_registers, bivium_equations, clean_system
 
 def is_linear(equation):
@@ -17,7 +18,13 @@ def count_var(equation):
             variable_set.add(variable)
 
     return len(variable_set)
-    
+
+def index_to_var(index):
+    if index < 93:
+        return f"x{index + 1:02}"
+    else:
+        return f"y{index - 92:02}"
+
 def equation_to_string(equation, keystream, i):
     return f"k{i + 1}: {int(keystream[i] ^ equation[1])} = {' + '.join([' * '.join(x) for x in equation[0]])}"
 
@@ -65,6 +72,22 @@ class BiviumSystem:
 
     def var_value(self, var):
         return self.kx[int(var[1:]) - 1] if var[0] == "x" else self.ky[int(var[1:]) - 1]
+
+    ###SYSTEM MATRIX OPERATIONS
+    def reduced_echelon_form(self, begin = 0, end = 66, step = 1, fb = True):
+
+        z = self.z_free_bits if fb else self.z
+
+        selected_rows = []
+        
+        for i in range(begin, end, step):
+            selected_rows.append([1 if {index_to_var(k)} in z[i][0] else 0 for k in range(177)])
+
+        reduced_echelon = Matrix(selected_rows).rref()[0].tolist()
+        
+        for i in range(begin, end, step):
+            const = z[i][1]
+            z[i] = ([{index_to_var(k)} for k in range(177) if reduced_echelon[(i - begin) // step][k] % 2], const)
 
     ###SIMPLIFY SYSTEM
     def simplify(self, new_fixed_bits):

@@ -7,7 +7,6 @@ from multiprocessing import Process
 from file_handler import open_file, close_file
 from process import start_and_wait, index_div, output
 from bivium_class import BiviumSystem, equation_to_string, is_linear, is_contained
-from bivium import bivium_registers, bivium_equations, clean_system
 
 def create_aux_var(self, monomial_comb):
 
@@ -369,6 +368,10 @@ if __name__ == "__main__":
                 if {command[1]} in system.z_free_bits[i][0]:
                     print(equation_to_string(system.z_free_bits[i], system.keystream, i), end = "\n\n")
 
+        elif len(command) == 4 and command[0] == "rref" and command[1].isdigit() and command[2].isdigit() and command[3].isdigit():
+            save_state(past_actions, next_actions, system)
+            system.reduced_echelon_form(int(command[1]) - 1, int(command[2]), int(command[3]))
+
         elif 1 <= len(command) <= 3 and command[0][:5] == "print":
             if len(command) == 2 and command[1] != "fb" or len(command) == 3:
                 file = open_file(command[1] if len(command) == 2 else command[2])
@@ -407,6 +410,7 @@ if __name__ == "__main__":
             print("\n+fixed: stampa le variabili che hai fissato fin'ora")
             print("\n+free: stampa le variabili gratuite che hai ottenuto")
             print("\n+find <var>: stampa le equazioni contenenti quella variabile ('find x9')")
+            print("\n+rref <begin> <end> <step>: applica le riduzioni di Gauss-Jordan al sottosistema scelto")
             print("\n+print <args>: stampa il sistema corrente ('print test' redireziona l'output sul file test.txt)")
             print("\n+print_smaller <args>: stampa le equazioni aventi 3 o meno variabili, nelle prime 66 ('print_easy test' redireziona l'output sul file test.txt)")
             print("\n+print_info <args>: stampa le prime 66 equazioni, segnando per ciascuna la frequenza globale e locale di ogni variabile ('print_occ test' redireziona l'output sul file test.txt)\n")
