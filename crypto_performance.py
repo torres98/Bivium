@@ -3,7 +3,7 @@ from file_handler import open_file, close_file
 
 total_time = 0.
 
-for i in range(1, 9):
+for i in range(1, 101):
 
     file = open(f"test_result/top{i}.txt", "r")
 
