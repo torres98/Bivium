@@ -2,6 +2,7 @@ from copy import deepcopy
 from random import getrandbits
 from to_cnf import system_to_cnf
 from sympy import *
+from file_handler import *
 from bivium import bivium_registers, bivium_equations, clean_system
 
 def is_linear(equation):
@@ -79,15 +80,25 @@ class BiviumSystem:
         z = self.z_free_bits if fb else self.z
 
         selected_rows = []
-        
+       #monomial_list = []
+        """
+        for eq, _ in z:
+            for monomial in eq:
+                if len(monomial) > 1 and monomial not in monomial_list:
+                    monomial_list.append(monomial)
+        """
         for i in range(begin, end, step):
-            selected_rows.append([1 if {index_to_var(k)} in z[i][0] else 0 for k in range(177)])
+            matrix_row = [1 if {index_to_var(k)} in z[i][0] else 0 for k in range(177)]
+            matrix_row.append(int(z[i][1] ^ self.keystream[i]))
+            #matrix_row += [1 if monomial in z[i][0] else 0 for monomial in monomial_list]
+            selected_rows.append(matrix_row)
 
         reduced_echelon = Matrix(selected_rows).rref()[0].tolist()
         
         for i in range(begin, end, step):
-            const = z[i][1]
-            z[i] = ([{index_to_var(k)} for k in range(177) if reduced_echelon[(i - begin) // step][k] % 2], const)
+            new_row = [{index_to_var(k)} for k in range(177) if reduced_echelon[(i - begin) // step][k] % 2]
+            #new_row += [monomial_list[k] for k in range(len(monomial_list)) if reduced_echeleon[177 + k] == 1]
+            z[i] = (new_row, bool(self.keystream[i] ^ bool(reduced_echelon[(i - begin) // step][177] % 2)))
 
     ###SIMPLIFY SYSTEM
     def simplify(self, new_fixed_bits):
@@ -222,6 +233,24 @@ class BiviumSystem:
         else:
             print("L'equazione ausiliaria non compare mai nel sistema.", end = '\n\n')
 
+    def create_simple_nonlinear_aux(self):
+
+        for i in range(len(self.z_free_bits)):
+
+            while not is_linear(self.z_free_bits[i][0]):
+                
+                for monomial in self.z_free_bits[i][0]:
+                    
+                    if len(monomial) > 1:
+                        self.aux_system.append(monomial)
+
+                        for equation, _ in self.z_free_bits:
+                            if monomial in equation:
+                                equation.append({f"a{len(self.aux_system)}"})
+                                equation.remove(monomial)
+
+                        break
+
     def create_nonlinear_aux(self):
 
         for i in range(len(self.z_free_bits)):
@@ -295,7 +324,11 @@ class BiviumSystem:
 
         for i in range(len(z)):
             if z[i][0] != []:
-                result += (f"{' + '.join([' * '.join(x) for x in z[i][0]])} + {int(self.keystream[i] ^ z[i][1])},")
+                result += f"{' + '.join([' * '.join(x) for x in z[i][0]])}"
+                if self.keystream[i] ^ z[i][1]:
+                    result += " + 1,"
+                else:
+                    result += ","    
 
         print(f"{result[:-1]}]")
 

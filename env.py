@@ -368,6 +368,9 @@ if __name__ == "__main__":
                 if {command[1]} in system.z_free_bits[i][0]:
                     print(equation_to_string(system.z_free_bits[i], system.keystream, i), end = "\n\n")
 
+        elif command[0] == "aux_simple":
+            system.create_simple_nonlinear_aux()
+
         elif len(command) == 4 and command[0] == "rref" and command[1].isdigit() and command[2].isdigit() and command[3].isdigit():
             save_state(past_actions, next_actions, system)
             system.reduced_echelon_form(int(command[1]) - 1, int(command[2]), int(command[3]))
@@ -410,6 +413,7 @@ if __name__ == "__main__":
             print("\n+fixed: stampa le variabili che hai fissato fin'ora")
             print("\n+free: stampa le variabili gratuite che hai ottenuto")
             print("\n+find <var>: stampa le equazioni contenenti quella variabile ('find x9')")
+            print("\n+aux_simple: genera le variabili ausiliarie con tutti i monomi con più di una variabile")
             print("\n+rref <begin> <end> <step>: applica le riduzioni di Gauss-Jordan al sottosistema scelto")
             print("\n+print <args>: stampa il sistema corrente ('print test' redireziona l'output sul file test.txt)")
             print("\n+print_smaller <args>: stampa le equazioni aventi 3 o meno variabili, nelle prime 66 ('print_easy test' redireziona l'output sul file test.txt)")
