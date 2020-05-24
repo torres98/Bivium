@@ -1,8 +1,8 @@
+from sympy import *
+from file_handler import *
 from copy import deepcopy
 from random import getrandbits
 from to_cnf import system_to_cnf
-from sympy import *
-from file_handler import *
 from bivium import bivium_registers, bivium_equations, clean_system
 
 def is_linear(equation):
@@ -26,14 +26,14 @@ def index_to_var(index):
     else:
         return f"y{index - 92:02}"
 
-def equation_to_string(equation, keystream, i):
-    return f"k{i + 1}: {int(keystream[i] ^ equation[1])} = {' + '.join([' * '.join(x) for x in equation[0]])}"
+def equation_to_string(equation, i):
+    return f"k{i + 1}: {int(equation[1])} = {' + '.join([' * '.join(x) for x in equation[0]])}"
 
-def linear_equation_to_satstring(equation, keystream, i):
-    return ("" if keystream[i] ^ equation[1] else "-") + ' '.join([var for var, in equation[0]])
+def linear_equation_to_satstring(equation, i):
+    return ("" if equation[1] else "-") + ' '.join([var for var, in equation[0]])
 
-def equation_to_sat_string(equation, keystream, i):
-    return ("" if keystream[i] ^ equation[1] else "~") + f"Xor({', '.join(['&'.join(x) for x in equation[0]])})"
+def equation_to_sat_string(equation, i):
+    return ("" if equation[1] else "~") + f"Xor({', '.join(['&'.join(x) for x in equation[0]])})"
 
 def equation_info(equation, global_occ, local_occ):
     info = "    | "
@@ -89,7 +89,7 @@ class BiviumSystem:
         """
         for i in range(begin, end, step):
             matrix_row = [1 if {index_to_var(k)} in z[i][0] else 0 for k in range(177)]
-            matrix_row.append(int(z[i][1] ^ self.keystream[i]))
+            matrix_row.append(int(z[i][1]))
             #matrix_row += [1 if monomial in z[i][0] else 0 for monomial in monomial_list]
             selected_rows.append(matrix_row)
 
@@ -98,7 +98,7 @@ class BiviumSystem:
         for i in range(begin, end, step):
             new_row = [{index_to_var(k)} for k in range(177) if reduced_echelon[(i - begin) // step][k] % 2]
             #new_row += [monomial_list[k] for k in range(len(monomial_list)) if reduced_echeleon[177 + k] == 1]
-            z[i] = (new_row, bool(self.keystream[i] ^ bool(reduced_echelon[(i - begin) // step][177] % 2)))
+            z[i] = (new_row, bool(reduced_echelon[(i - begin) // step][177] % 2))
 
     ###SIMPLIFY SYSTEM
     def simplify(self, new_fixed_bits):
@@ -146,7 +146,7 @@ class BiviumSystem:
                     
                     if var not in free_bit:
 
-                        if self.keystream[i] ^ self.z_free_bits[i][1] != self.var_value(var):
+                        if self.z_free_bits[i][1] != self.var_value(var):
                             raise RuntimeError()
 
                         new_fix_bit.append(var)
@@ -242,7 +242,7 @@ class BiviumSystem:
                 for monomial in self.z_free_bits[i][0]:
                     
                     if len(monomial) > 1:
-                        self.aux_system.append(monomial)
+                        self.aux_system.append([monomial])
 
                         for equation, _ in self.z_free_bits:
                             if monomial in equation:
@@ -286,7 +286,7 @@ class BiviumSystem:
         z = self.z_free_bits if fb else self.z
 
         for i in range(len(z)):
-            print(equation_to_string(z[i], self.keystream, i), end = "\n\n")
+            print(equation_to_string(z[i], i), end = "\n\n")
 
     def print_smaller(self, fb = True):
         
@@ -294,7 +294,7 @@ class BiviumSystem:
 
         for i in range(66):
             if 0 < len(z[i][0]) < 4:
-                print(f"{equation_to_string(z[i], self.keystream, i)} {equation_info(z[i][0], self.abs_global_var_occurrences, self.abs_first_var_occurrences)}")
+                print(f"{equation_to_string(z[i], i)} {equation_info(z[i][0], self.abs_global_var_occurrences, self.abs_first_var_occurrences)}")
 
     def print_info(self, fb = True):
 
@@ -302,9 +302,9 @@ class BiviumSystem:
 
         for i in range(66):
             if i < 66 and z[i][0] != []:
-                print(f"{equation_to_string(z[i], self.keystream, i)} {equation_info(z[i][0], self.abs_global_var_occurrences, self.abs_first_var_occurrences)}")
+                print(f"{equation_to_string(z[i], i)} {equation_info(z[i][0], self.abs_global_var_occurrences, self.abs_first_var_occurrences)}")
             else:
-                print(equation_to_string(z[i], self.keystream, i), end = "\n\n")
+                print(equation_to_string(z[i], i), end = "\n\n")
 
     def print_sympy(self, fb = True):
 
@@ -312,7 +312,7 @@ class BiviumSystem:
 
         for i in range(len(z)):
             if z[i][0] != []:
-                print(equation_to_sat_string(z[i], self.keystream, i))
+                print(equation_to_sat_string(z[i], i))
 
         for i in range(len(self.aux_system)):
             print(f"Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})", end = "\n\n")
@@ -325,7 +325,7 @@ class BiviumSystem:
         for i in range(len(z)):
             if z[i][0] != []:
                 result += f"{' + '.join([' * '.join(x) for x in z[i][0]])}"
-                if self.keystream[i] ^ z[i][1]:
+                if z[i][1]:
                     result += " + 1,"
                 else:
                     result += ","    
@@ -342,9 +342,9 @@ class BiviumSystem:
         for i in range(len(z)):
             if z[i][0] != []:
                 if is_linear(z[i][0]):
-                    linear_equations.append(linear_equation_to_satstring(z[i], self.keystream, i))
+                    linear_equations.append(linear_equation_to_satstring(z[i], i))
                 else:
-                    non_linear_equations.append(equation_to_sat_string(z[i], self.keystream, i))
+                    non_linear_equations.append(equation_to_sat_string(z[i], i))
 
         for i in range(len(self.aux_system)):
             non_linear_equations.append(f"~Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})")

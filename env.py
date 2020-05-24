@@ -142,30 +142,33 @@ if __name__ == "__main__":
 
     for line in sys.stdin:
         
-        command = line.rstrip().split()
+        line_words = line.rstrip().split()
 
-        if len(command) == 1 and command[0] == "new": #genera casualmente un keystream
+        command = line_words[0]
+        args = line_words[1:]
+
+        if command == "new" and args == []: #genera casualmente un keystream
 
             save_state(past_actions, next_actions, system)
 
             system = BiviumSystem()
             print(f"KEYSTREAM: {''.join(map(lambda x: f'{int(x)}', system.keystream))}", end = '\n\n')
 
-        elif len(command) == 1 and command[0] == "new_1":
+        elif command == "new_1" and args == []:
 
             save_state(past_actions, next_actions, system)
 
             system = BiviumSystem(all_one = True)
             print(f"KEYSTREAM: {''.join(map(lambda x: f'{int(x)}', system.keystream))}", end = '\n\n')
 
-        elif len(command) > 1 and command[0] == "fix": #fissa dei bit e osserva le equazioni
+        elif command == "fix" and args != [] : #fissa dei bit e osserva le equazioni
 
             save_state(past_actions, next_actions, system)
 
             fixed_bits = []
             bad_arg = False
 
-            for arg in command[1:]:
+            for arg in args:
 
                 single_r = re.match("^(k|x|y)(\d+)$", arg)
                 range_r = re.match("^(x|y)(\d+)-(\d+)$", arg)
@@ -196,11 +199,11 @@ if __name__ == "__main__":
             if not bad_arg:
                 system.simplify(fixed_bits)
             
-        elif len(command) == 2 and command[0] == "fix_top" and command[1].isdigit():
+        elif command == "fix_top" and len(args) == 1 and args[0].isdigit():
 
             save_state(past_actions, next_actions, system)
 
-            for i in range(int(command[1])):
+            for i in range(int(args[0])):
                 global_occ_top = system.variable_occurrences()
                 global_occ_top = [(var, occ) for var, occ in sorted(global_occ_top.items(), key = lambda item: item[1], reverse = True)]
 
@@ -214,7 +217,7 @@ if __name__ == "__main__":
 
                     starting_base.append((var, True))
 
-        elif len(command) == 1 and command[0] == "lower":
+        elif command == "lower" and args == []:
             
             if next_bases == []:
                 bases_to_improve = [[(var, True) for var in starting_base]]
@@ -258,11 +261,11 @@ if __name__ == "__main__":
         #elif len(command) == 2 and command[0] == "best_base" and command[1].isdigit():
 
 
-        elif len(command) == 3 and command[0] == "create" and command[1].isdigit() and command[2].isdigit():
+        elif command == "create" and len(args) == 2 and args[0].isdigit() and args[1].isdigit():
             global_occ_top = variable_occurrences(z_with_free_bit)
             top_var = [(var, True) for var, _ in sorted(global_occ_top.items(), key = lambda item: item[1], reverse = True)]
-            n = int(command[1])
-            k = int(command[2])
+            n = int(args[0])
+            k = int(args[1])
 
             bases_to_try = list(combinations(top_var[:n], k))
             l = len(bases_to_try)
@@ -285,7 +288,7 @@ if __name__ == "__main__":
             else:
                 print("Nessuna base trovata...")
 
-        elif len(command) == 2 and command[0] == "reduce" and command[1].isdigit():
+        elif command == "reduce" and len(args) == 1 and args[0].isdigit():
             
             long_equations = []
 
@@ -293,7 +296,7 @@ if __name__ == "__main__":
                 if count_var(equation) > 8:
                     long_equations.append((equation, const))
 
-            monomial_occ = monomial_occurrences(long_equations)[:int(command[1])]
+            monomial_occ = monomial_occurrences(long_equations)[:int(args[0])]
 
             most_freq_monomials = [monomial for monomial, _ in monomial_occ]
             monomial_comb = list(chain.from_iterable(combinations(most_freq_monomials, i) for i in range(2, 7)))
@@ -337,10 +340,10 @@ if __name__ == "__main__":
                         equation.append({f"a{aux_index}"})
                 aux_index += 1
 
-        elif len(command) == 1 and command[0] == "aux_selection":
+        elif command == "aux_selection" and args == []:
             system.create_nonlinear_aux()    
 
-        elif len(command) == 1 and command[0] == "add_aux":
+        elif command == "add_aux" and args == []:
 
             add = re.compile("\s*\+\s*")
             mul = re.compile("\s*\*\s*")
@@ -353,76 +356,80 @@ if __name__ == "__main__":
 
             system.add_aux(aux_expr)
 
-        elif len(command) == 1 and command[0] == "unknown_var":
+        elif command == "aux_simple" and args == []:
+            system.create_simple_nonlinear_aux()
+
+        elif command == "unknown_var" and args == []:
             var_list = [f"x{i:02}" for i in range(1, 94)] + [f"y{i:02}" for i in range(1, 85)]
             print(", ".join([var for var in var_list if var not in system.free and var not in system.fixed]))
             
-        elif len(command) == 1 and command[0] == "fixed":
+        elif command == "fixed" and args == []:
             system.print_history()
         
-        elif len(command) == 1 and command[0] == "free":
+        elif command == "free" and args == []:
             system.print_history(False)
 
-        elif len(command) == 2 and command[0] == "find":
+        elif command == "find" and len(args) == 1:
             for i in range(66):
-                if {command[1]} in system.z_free_bits[i][0]:
+                if {args[0]} in system.z_free_bits[i][0]:
                     print(equation_to_string(system.z_free_bits[i], system.keystream, i), end = "\n\n")
 
-        elif command[0] == "aux_simple":
-            system.create_simple_nonlinear_aux()
-
-        elif len(command) == 4 and command[0] == "rref" and command[1].isdigit() and command[2].isdigit() and command[3].isdigit():
+        elif command == "rref" and len(args) == 3 and args[0].isdigit() and args[1].isdigit() and args[2].isdigit():
             save_state(past_actions, next_actions, system)
-            system.reduced_echelon_form(int(command[1]) - 1, int(command[2]), int(command[3]))
+            system.reduced_echelon_form(int(args[0]) - 1, int(args[1]), int(args[2]))
 
-        elif 1 <= len(command) <= 3 and command[0][:5] == "print":
-            if len(command) == 2 and command[1] != "fb" or len(command) == 3:
-                file = open_file(command[1] if len(command) == 2 else command[2])
+        elif command[:5] == "print" and 0 <= len(args) <= 2:
+            if len(args) == 1 and args[0] != "fb" or len(args) == 2:
+                file = open_file(args[0] if len(args) == 1 else args[1])
 
-            fb = len(command) > 1 and command[1] == "fb"
+            fb = args != [] and args[0] == "fb"
 
-            if command[0] == "print":
+            if command == "print":
                 system.print(fb)
-            elif command[0] == "print_smaller":
+            elif command == "print_smaller":
                 system.print_smaller(fb)
-            elif command[0] == "print_info":
+            elif command == "print_info":
                 system.print_info(fb)
-            elif command[0] == "print_sympy":
+            elif command == "print_sympy":
                 system.print_sympy(fb)
-            elif command[0] == "print_cnf":
+            elif command == "print_cnf":
                 system.print_cnf(fb)
-            elif command[0] == "print_sage":
+            elif command == "print_sage":
                 system.print_sage(fb)
-            elif command[0] == "print_aux":
+            elif command == "print_aux":
                 system.print_aux()
             else:
                 print("Comando di print inesistente.")
 
-            if len(command) == 2 and command[1] != "fb" or len(command) == 3:
+            if len(args) == 1 and args[0] != "fb" or len(args) == 2:
                 close_file(file)
 
-        elif len(command) == 1 and command[0] == "undo":
+        elif command == "undo" and args == []:
             undo(past_actions, next_actions)
             
-        elif len(command) == 1 and command[0] == "redo":
+        elif command == "redo" and args == []:
             redo(past_actions, next_actions)
             
-        elif len(command) == 1 and command[0] == "help":
+        elif command == "help" and args == []:
             print("\n+new: genera il sistema di equazioni completo, generando dei bit casuali per i registri iniziali e il relativo keystream")
-            print("\n+fix var_list: fissa le variabili passate in input nel sistema di equazioni corrente \nesempio 'fix x92 x83 y12'\n        'fix x9-34' (fissa le variabili da x9 a x214)")
+            print("\n+fix <var_list>: fissa le variabili passate in input nel sistema di equazioni corrente \nesempio 'fix x92 x83 y12'\n        'fix x9-34' (fissa le variabili da x9 a x34)")
+            print("\n+fix_top <int>: fissa le <int> variabili più frequenti nel sistema")
+            print("\n+add_aux: genera una nuova variabile ausiliaria che corrisponde all'espressione passata in input")
+            print("\n+aux_simple: genera le variabili ausiliarie con tutti i monomi con più di una variabile")
             print("\n+fixed: stampa le variabili che hai fissato fin'ora")
             print("\n+free: stampa le variabili gratuite che hai ottenuto")
             print("\n+find <var>: stampa le equazioni contenenti quella variabile ('find x9')")
-            print("\n+aux_simple: genera le variabili ausiliarie con tutti i monomi con più di una variabile")
             print("\n+rref <begin> <end> <step>: applica le riduzioni di Gauss-Jordan al sottosistema scelto")
             print("\n+print <args>: stampa il sistema corrente ('print test' redireziona l'output sul file test.txt)")
             print("\n+print_smaller <args>: stampa le equazioni aventi 3 o meno variabili, nelle prime 66 ('print_easy test' redireziona l'output sul file test.txt)")
-            print("\n+print_info <args>: stampa le prime 66 equazioni, segnando per ciascuna la frequenza globale e locale di ogni variabile ('print_occ test' redireziona l'output sul file test.txt)\n")
+            print("\n+print_info <args>: stampa le prime 66 equazioni, segnando per ciascuna la frequenza globale e locale di ogni variabile ('print_occ test' redireziona l'output sul file test.txt)")
             print("\n+print_sympy <args>: stampa il sistema corrente in formato convertibile da sympy('print_sat test' redireziona l'output sul file test.txt)")
             print("\n+print_cnf <args>: stampa il sistema corrente in formato cnf")
-            print("\n+print_aux: stampa il sistema che definisce le variabili ausiliarie\n")
+            print("\n+print_aux: stampa il sistema che definisce le variabili ausiliarie")
+            print("\n+exit: esci dalla shell interattiva\n")
 
-        elif len(command) == 1 and command[0] == "exit":
+        elif command == "exit" and args == []:
+            print("Session Closed.")
             break
 
         else:
