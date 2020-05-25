@@ -2,7 +2,8 @@ from sympy import *
 from file_handler import *
 from copy import deepcopy
 from random import getrandbits
-from to_cnf import system_to_cnf
+from to_cnf_v3 import system_to_cnf
+from sat_solver import solve
 from bivium import bivium_registers, bivium_equations, clean_system
 
 def is_linear(equation):
@@ -254,13 +255,16 @@ class BiviumSystem:
     def create_nonlinear_aux(self):
 
         for i in range(len(self.z_free_bits)):
-            while count_var(self.z_free_bits[i][0]) > 8 and not is_linear(self.z_free_bits[i][0]):
+            while not is_linear(self.z_free_bits[i][0]):
 
                 aux_expression = list(filter(lambda x: len(x) > 1, self.z_free_bits[i][0]))
                 k = 0
 
-                while count_var(aux_expression[k:]) > 7:
+                while count_var(aux_expression[k:]) > 2:
                     k += 1
+                    if k >= len(aux_expression):
+                        k -= 1
+                        break
 
                 aux_expression = aux_expression[k:]
 
@@ -279,6 +283,25 @@ class BiviumSystem:
                             aux_equation.append({f"a{len(self.aux_system) + 1}"})
 
                 self.aux_system.append(aux_expression)
+
+    ###SOLVE
+    def sat_solve(self, fb = True):
+        z = self.z_free_bits if fb else self.z
+
+        non_linear_equations = []
+        linear_equations = []
+
+        for i in range(len(z)):
+            if z[i][0] != []:
+                if is_linear(z[i][0]):
+                    linear_equations.append(z[i])
+                else:
+                    non_linear_equations.append(equation_to_sat_string(z[i], i))
+
+        #for i in range(len(self.aux_system)):
+        #    non_linear_equations.append(f"~Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})")
+
+        return solve(linear_equations, self.aux_system)
 
     ###PRINT
     def print(self, fb = True):
@@ -342,14 +365,14 @@ class BiviumSystem:
         for i in range(len(z)):
             if z[i][0] != []:
                 if is_linear(z[i][0]):
-                    linear_equations.append(linear_equation_to_satstring(z[i], i))
+                    linear_equations.append(z[i])
                 else:
                     non_linear_equations.append(equation_to_sat_string(z[i], i))
 
-        for i in range(len(self.aux_system)):
-            non_linear_equations.append(f"~Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})")
+        #for i in range(len(self.aux_system)):
+        #    non_linear_equations.append(f"~Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})")
 
-        return system_to_cnf(linear_equations, non_linear_equations)
+        return system_to_cnf(linear_equations, self.aux_system)
 
     def print_aux(self):
         for i in range(len(self.aux_system)):

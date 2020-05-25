@@ -1,15 +1,19 @@
 from re import sub, split
-from multiprocessing import Process
-from sympy.logic.boolalg import to_cnf
-from process import start_and_wait, output, index_div
 
-def anf_to_cnf(equations):
+def aux_to_cnf(aux_system):
     cnf_equations = []
 
-    for expression in equations:
-        cnf_equations.append(str(to_cnf(expression)))
-
-    output.put(cnf_equations)
+    for i in range(len(aux_system)):
+        l = list(aux_system[i][0])
+        
+        if len(l) == 2:
+            cnf_equations.append(f"(~a{i + 1} | {l[0]}) & (~a{i + 1} | {l[1]}) & (a{i + 1} | ~{l[0]} | ~{l[1]})")
+        elif len(l) == 3:
+            cnf_equations.append(f"(~a{i + 1} | {l[0]}) & (~a{i + 1} | {l[1]}) & (~a{i + 1} | {l[2]}) & (a{i + 1} | ~{l[0]} | ~{l[1]} | ~{l[2]})")
+        else:
+            raise Exception("wtf")
+    
+    return cnf_equations
 
 def build_cnf_row(expression, var_dict, var_index, xor = False):
 
@@ -43,7 +47,7 @@ def to_cnf_file(linear_equations, non_linear_equations):
         cnf_row, var_index = build_cnf_row(anf_equation.split(), var_dict, var_index, True)
         cnf_system += cnf_row
         num_rows += 1
-        
+
     for cnf_equation in non_linear_equations:
         for literal in sub("[()]", "", cnf_equation.replace("~", "-")).split(" & "):
             cnf_row, var_index = build_cnf_row(literal.split(" | "), var_dict, var_index)
@@ -54,17 +58,6 @@ def to_cnf_file(linear_equations, non_linear_equations):
 
     return var_dict
 
-def system_to_cnf(linear_equations, non_linear_equations):
-    l = len(non_linear_equations)
-    processes = [Process(target = anf_to_cnf, args = (non_linear_equations[index_div(l, i, 8):index_div(l, i + 1, 8)], )) for i in range(8)]
-
-    return to_cnf_file(linear_equations, start_and_wait(processes))
-
-"""
-f = open("true_sat.txt", "r")
-a = f.readlines()
-for x in range(len(a)):
-    a[x] = a[x].replace("\n", "")
-
-equations_to_cnf([], a, "test")
-"""
+def system_to_cnf(linear_equations, aux_system):
+    cnf = aux_to_cnf(aux_system)
+    to_cnf_file(linear_equations, cnf)

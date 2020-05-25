@@ -1,8 +1,8 @@
-import re
 import sys
 import random
 from copy import deepcopy
 from itertools import combinations, chain
+from re import compile, match
 from multiprocessing import Process
 from file_handler import open_file, close_file
 from process import start_and_wait, index_div, output
@@ -170,8 +170,8 @@ if __name__ == "__main__":
 
             for arg in args:
 
-                single_r = re.match("^(k|x|y)(\d+)$", arg)
-                range_r = re.match("^(x|y)(\d+)-(\d+)$", arg)
+                single_r = match("^(k|x|y)(\d+)$", arg)
+                range_r = match("^(x|y)(\d+)-(\d+)$", arg)
 
                 if single_r and single_r.group(1) == "x" and 1 <= int(single_r.group(2)) <= 93:
                     fixed_bits.append(arg)
@@ -345,8 +345,8 @@ if __name__ == "__main__":
 
         elif command == "add_aux" and args == []:
 
-            add = re.compile("\s*\+\s*")
-            mul = re.compile("\s*\*\s*")
+            add = compile("\s*\+\s*")
+            mul = compile("\s*\*\s*")
 
             expr = input("Inserisci l'espressione da sostituire: ").strip()
             aux_expr = add.split(expr)
@@ -378,11 +378,16 @@ if __name__ == "__main__":
             save_state(past_actions, next_actions, system)
             system.reduced_echelon_form(int(args[0]) - 1, int(args[1]), int(args[2]))
 
+        elif command == "solve" and args == []:
+            system.sat_solve()
+
         elif command[:5] == "print" and 0 <= len(args) <= 2:
             if len(args) == 1 and args[0] != "fb" or len(args) == 2:
                 file = open_file(args[0] if len(args) == 1 else args[1])
 
             fb = args != [] and args[0] == "fb"
+
+            t = False
 
             if command == "print":
                 system.print(fb)
@@ -403,6 +408,8 @@ if __name__ == "__main__":
 
             if len(args) == 1 and args[0] != "fb" or len(args) == 2:
                 close_file(file)
+                if t:
+                    print(t1-t0)
 
         elif command == "undo" and args == []:
             undo(past_actions, next_actions)
