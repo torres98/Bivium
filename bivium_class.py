@@ -23,14 +23,14 @@ def count_var(equation):
 
 def index_to_var(index):
     if index < 93:
-        return f"x{index + 1:02}"
+        return f"x{index + 1}"
     else:
-        return f"y{index - 92:02}"
+        return f"y{index - 92}"
 
 def equation_to_string(equation, i):
     return f"k{i + 1}: {int(equation[1])} = {' + '.join([' * '.join(x) for x in equation[0]])}"
 
-def linear_equation_to_satstring(equation, i):
+def linear_equation_to_sat_string(equation, i):
     return ("" if equation[1] else "-") + ' '.join([var for var, in equation[0]])
 
 def equation_to_sat_string(equation, i):
@@ -76,9 +76,9 @@ class BiviumSystem:
         return self.kx[int(var[1:]) - 1] if var[0] == "x" else self.ky[int(var[1:]) - 1]
 
     ###SYSTEM MATRIX OPERATIONS
-    def reduced_echelon_form(self, begin = 0, end = 66, step = 1, fb = True):
+    def reduced_echelon_form(self, begin = 0, end = 66, step = 1, nofb = False):
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         selected_rows = []
        #monomial_list = []
@@ -105,15 +105,15 @@ class BiviumSystem:
     def simplify(self, new_fixed_bits):
         
         self.substitute_bits(new_fixed_bits)
-        self.substitute_bits(new_fixed_bits, False)
+        self.substitute_bits(new_fixed_bits, True)
 
         self.find_free_bits()
 
         self.fixed.extend(new_fixed_bits)
 
-    def substitute_bits(self, fixed_bits, fb = True):
+    def substitute_bits(self, fixed_bits, nofb = False):
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for var in fixed_bits:
             for i in range(len(z)):
@@ -169,10 +169,10 @@ class BiviumSystem:
         self.free.extend(free_bit)
 
     #OCCURRENCES
-    def variable_occurrences(self, begin = 0, end = None, fb = True): #conta le occorrenze di ogni variabile nel range di equazioni del sistema
-        var_occurrences = {(f"x{n:02}" if n < 94 else f"y{(n - 93):02}"): 0 for n in range(1, 178)}
+    def variable_occurrences(self, begin = 0, end = None, nofb = False): #conta le occorrenze di ogni variabile nel range di equazioni del sistema
+        var_occurrences = {(f"x{n}" if n < 94 else f"y{(n - 93)}"): 0 for n in range(1, 178)}
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for expr, _ in z[begin:end]:
             for monomial in expr:
@@ -181,11 +181,11 @@ class BiviumSystem:
 
         return var_occurrences
 
-    def monomial_occurrences(self, begin = 0, end = None, fb = True): #conta le occorrenze di ogni monomio nel sistema
+    def monomial_occurrences(self, begin = 0, end = None, nofb = False): #conta le occorrenze di ogni monomio nel sistema
         monomial_list = []
         occ_list = []
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for expr, _ in z[begin:end]:
             for monomial in expr:
@@ -216,12 +216,12 @@ class BiviumSystem:
 
         count = 0
 
-        for equation, _ in self.z_free_bit:
+        for equation, _ in self.z_free_bits:
             if is_contained(equation, aux_expr):
                 count += 1
 
         if count > 0:
-            for equation, _ in self.z_free_bit:
+            for equation, _ in self.z_free_bits:
                 if is_contained(equation, aux_expr):
                     for monomial in aux_expr:
                         equation.remove(monomial)
@@ -285,8 +285,8 @@ class BiviumSystem:
                 self.aux_system.append(aux_expression)
 
     ###SOLVE
-    def sat_solve(self, fb = True):
-        z = self.z_free_bits if fb else self.z
+    def sat_solve(self, nofb = False):
+        z = self.z if nofb else self.z_free_bits
 
         non_linear_equations = []
         linear_equations = []
@@ -304,24 +304,24 @@ class BiviumSystem:
         return solve(linear_equations, self.aux_system)
 
     ###PRINT
-    def print(self, fb = True):
+    def print(self, nofb = False):
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for i in range(len(z)):
             print(equation_to_string(z[i], i), end = "\n\n")
 
-    def print_smaller(self, fb = True):
+    def print_smaller(self, nofb = False):
         
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for i in range(66):
             if 0 < len(z[i][0]) < 4:
                 print(f"{equation_to_string(z[i], i)} {equation_info(z[i][0], self.abs_global_var_occurrences, self.abs_first_var_occurrences)}")
 
-    def print_info(self, fb = True):
+    def print_info(self, nofb = False):
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for i in range(66):
             if i < 66 and z[i][0] != []:
@@ -329,9 +329,9 @@ class BiviumSystem:
             else:
                 print(equation_to_string(z[i], i), end = "\n\n")
 
-    def print_sympy(self, fb = True):
+    def print_sympy(self, nofb = False):
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for i in range(len(z)):
             if z[i][0] != []:
@@ -340,10 +340,10 @@ class BiviumSystem:
         for i in range(len(self.aux_system)):
             print(f"Xor(a{i + 1},{', '.join(['&'.join(x) for x in self.aux_system[i]])})", end = "\n\n")
 
-    def print_sage(self, fb = True):
+    def print_sage(self, nofb = False):
 
         result = "["
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         for i in range(len(z)):
             if z[i][0] != []:
@@ -355,9 +355,9 @@ class BiviumSystem:
 
         print(f"{result[:-1]}]")
 
-    def print_cnf(self, fb = True):
+    def print_cnf(self, nofb = False):
 
-        z = self.z_free_bits if fb else self.z
+        z = self.z if nofb else self.z_free_bits
 
         non_linear_equations = []
         linear_equations = []

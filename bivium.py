@@ -2,8 +2,8 @@ from bitarray import bitarray
 
 def bivium_equations(keystream, fixed_bit_reg):
     
-    kx = [([{f"x{n:02}"}], False) for n in range(1, 94)]
-    ky = [([{f"y{n:02}"}], False) for n in range(1, 85)]
+    kx = [([{f"x{n}"}], False) for n in range(1, 94)]
+    ky = [([{f"y{n}"}], False) for n in range(1, 85)]
 
     for var, val in fixed_bit_reg:
         if var[0] == "x":

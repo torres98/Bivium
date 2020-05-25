@@ -372,7 +372,7 @@ if __name__ == "__main__":
         elif command == "find" and len(args) == 1:
             for i in range(66):
                 if {args[0]} in system.z_free_bits[i][0]:
-                    print(equation_to_string(system.z_free_bits[i], system.keystream, i), end = "\n\n")
+                    print(equation_to_string(system.z_free_bits[i], i), end = "\n\n")
 
         elif command == "rref" and len(args) == 3 and args[0].isdigit() and args[1].isdigit() and args[2].isdigit():
             save_state(past_actions, next_actions, system)
@@ -382,34 +382,30 @@ if __name__ == "__main__":
             system.sat_solve()
 
         elif command[:5] == "print" and 0 <= len(args) <= 2:
-            if len(args) == 1 and args[0] != "fb" or len(args) == 2:
+            if len(args) == 1 and args[0] != "nofb" or len(args) == 2:
                 file = open_file(args[0] if len(args) == 1 else args[1])
 
-            fb = args != [] and args[0] == "fb"
-
-            t = False
+            nofb = args != [] and args[0] == "nofb"
 
             if command == "print":
-                system.print(fb)
+                system.print(nofb)
             elif command == "print_smaller":
-                system.print_smaller(fb)
+                system.print_smaller(nofb)
             elif command == "print_info":
-                system.print_info(fb)
+                system.print_info(nofb)
             elif command == "print_sympy":
-                system.print_sympy(fb)
+                system.print_sympy(nofb)
             elif command == "print_cnf":
-                system.print_cnf(fb)
+                system.print_cnf(nofb)
             elif command == "print_sage":
-                system.print_sage(fb)
+                system.print_sage(nofb)
             elif command == "print_aux":
                 system.print_aux()
             else:
                 print("Comando di print inesistente.")
 
-            if len(args) == 1 and args[0] != "fb" or len(args) == 2:
+            if len(args) == 1 and args[0] != "nofb" or len(args) == 2:
                 close_file(file)
-                if t:
-                    print(t1-t0)
 
         elif command == "undo" and args == []:
             undo(past_actions, next_actions)
