@@ -174,10 +174,10 @@ if __name__ == "__main__":
                 range_r = match("^(x|y)(\d+)-(\d+)$", arg)
 
                 if single_r and single_r.group(1) == "x" and 1 <= int(single_r.group(2)) <= 93:
-                    fixed_bits.append(arg)
+                    fixed_bits.append(f"x{int(single_r.group(2))}")
 
                 elif single_r and single_r.group(1) == "y" and 1 <= int(single_r.group(2)) <= 84:
-                    fixed_bits.append(arg)
+                    fixed_bits.append(f"y{int(single_r.group(2))}")
 
                 elif single_r and single_r.group(1) == "k" and 1 <= int(single_r.group(2)) <= 66:
                     for var,  in system.z_free_bits[int(single_r.group(2)) - 1][0][1:]:
@@ -192,7 +192,7 @@ if __name__ == "__main__":
                         fixed_bits.append(f"y{i}")
 
                 else:
-                    print("Bad Arg")
+                    print(f"{arg}: Bad Arg")
                     bad_arg = True
                     break
 
@@ -380,6 +380,9 @@ if __name__ == "__main__":
 
         elif command == "solve" and args == []:
             system.sat_solve()
+
+        elif command == "sfb" and args != []:
+            system.substitute_free_bits(args)
 
         elif command[:5] == "print" and 0 <= len(args) <= 2:
             if len(args) == 1 and args[0] != "nofb" or len(args) == 2:

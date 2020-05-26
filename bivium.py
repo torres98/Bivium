@@ -51,20 +51,19 @@ def mul(a, b): #calcola il prodotto tra due espressioni
     return (fact, a[1] and b[1])
 
 def clean_equation(dirty_equation):
-    monomial_list = []
+    cleaned_equation = []
 
     for monomial in dirty_equation:
-        if monomial not in monomial_list:
-            monomial_list.append(monomial)
+        if monomial in cleaned_equation:
+            cleaned_equation.remove(monomial)
+        else:
+            cleaned_equation.append(monomial)
 
-    for monomial in monomial_list:
-        monomial_occurrences = dirty_equation.count(monomial)
-        for _ in range(monomial_occurrences - (monomial_occurrences % 2)):
-            dirty_equation.remove(monomial)
+    return cleaned_equation
 
 def clean_system(z):
-    for equation, _ in z:
-        clean_equation(equation)
+    for i in range(len(z)):
+        z[i] = (clean_equation(z[i][0]), z[i][1])
 
 #Funzione che ruota i bit dei 2 registri, mettendone in testa i 2 bit
 #(t1 e t2) appena generati, scartando quindi l'ultimo bit di ciascuno
