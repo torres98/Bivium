@@ -40,6 +40,6 @@ def system_to_cnf(main_system, aux_system):
         else:
             raise ValueError(f"Variabile ausiliaria a{i + 1} troppo grande!")
 
-    #print(f"p cnf {var_index - 1} {num_rows}" + cnf_system)
+    print(f"p cnf {var_index - 1} {num_rows}" + cnf_system)
 
     return var_dict

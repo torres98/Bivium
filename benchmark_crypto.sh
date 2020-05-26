@@ -1,4 +1,4 @@
-#python3 crypto_benchmark.py
+python3 crypto_benchmark.py
 
 TIMEFORMAT='%3R'
 TOTAL="0.0"
